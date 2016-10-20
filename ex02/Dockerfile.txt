@@ -1,0 +1,27 @@
+FROM ubuntu
+
+MAINTAINER Robert Wahlstedt <owl3638@live.com>
+
+RUN apt-get update
+
+RUN dpkg-divert --local --rename --add /sbin/initctl;ln -s /bin/true /sbin/initctl
+
+RUN apt-get install -y git wget dnsmasq mysql-server python-software-properties;add-apt-repository ppa:ondrej/php5-oldstable
+
+RUN mkdir /root/.ssh
+
+RUN chmod 700 /root/.ssh/id_rsa;chmod 700 /root/.ssh/id_rsa.pub
+
+RUN touch /root/.ssh/config; echo "Host *n StrictHostKeyChecking no\n UserKnownHostFile=/dev/null" > /root/.ssh/config
+
+RUN mkdir -p /home/m/share/htdosc;cd /home/m/share/htdosc;get clone GIT_LOCATION; cd /
+
+RUN ls -s /home/m/share/htdosc/GIT_LOCATION/init.sh /init.sh; ln -s /home/m/share/htdosc/GIT_LOCATION/run.sh /run.sh
+
+RUN echo "listen-address=127.0.0.1\nconf-dir=/etc/dnsmasq.d\naddress=/your.domain.com/127.0.0.1\nresolv-file=/etc/resolv.dnsmasq.conf">>/etc/dnsmasq.conf
+
+RUN echo "nameserver 8.8.8.8\nnameserver 8.8.4.4">/etc/resolv.dnsmasq.conf
+
+RUN echo ". /init.sh\n./run.sh\n . /root/.bashrc">> /etc/bash.bashrc
+
+RUN echo "US/Pacific">/etc/timezone 
